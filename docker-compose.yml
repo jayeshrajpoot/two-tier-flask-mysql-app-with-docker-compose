@@ -1,0 +1,40 @@
+version: '3'
+
+
+services:
+
+  web:
+    build:
+      context: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app    
+    env_file:
+      - .env 
+    depends_on:
+      - mysql_db
+
+
+  mysql_db:
+    image: mysql
+    ports:
+      - "3306:3306"
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    volumes: # Mount sql script into container's /docker-entrypoint-initdb.d directory to get table automatically created
+      - ./initial-table-create.sql:/docker-entrypoint-initdb.d/initial-table-create.sql
+    # Remove the volume used for storing MySQL data This will ensure that the data is erased when containers are taken down
+    # Note: This will erase all MySQL data, including the messages column data Only use this if you want to start with a clean database every time        
+      - mysql-data:/var/lib/mysql  # Mount the volume for MySQL data storage
+
+volumes:
+  mysql-data:
+
+ 
+
